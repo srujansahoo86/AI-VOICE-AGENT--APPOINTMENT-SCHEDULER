@@ -1,0 +1,16 @@
+{
+  "NL-FO96": {
+    "booking_code": "NL-FO96",
+    "topic": "SIP / Mandates",
+    "slot": "Friday 5:30 PM IST",
+    "secure_link": "https://advisor.example.com/complete/NL-FO96",
+    "status": "Cancelled"
+  },
+  "NL-EF26": {
+    "booking_code": "NL-EF26",
+    "topic": "SIP / Mandates",
+    "slot": "Friday 3:00 PM IST",
+    "secure_link": "https://advisor.example.com/complete/NL-EF26",
+    "status": "Tentative"
+  }
+}

@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advisor Booking Monitor</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f17;
+            --card-bg: rgba(22, 28, 42, 0.6);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --text-main: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.35);
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            --font-outfit: 'Outfit', sans-serif;
+            --font-inter: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: var(--font-inter);
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Layout */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 1.5rem;
+        }
+
+        .header-title h1 {
+            font-family: var(--font-outfit);
+            font-weight: 700;
+            font-size: 2.25rem;
+            background: linear-gradient(135deg, #fff 30%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 12px 20px -8px var(--primary-glow);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-family: var(--font-outfit);
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            color: #fff;
+        }
+
+        /* Main Workspace Split Layout */
+        .dashboard-workspace {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards/Sections */
+        .workspace-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h2 {
+            font-family: var(--font-outfit);
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Tables & Lists */
+        .bookings-table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            font-family: var(--font-outfit);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        /* Status Badge Styling */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-tentative {
+            background: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .badge-rescheduled {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-cancelled {
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Waitlist Items */
+        .waitlist-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .waitlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .waitlist-item:hover {
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        .waitlist-info h4 {
+            font-size: 0.9rem;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .waitlist-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .waitlist-badge {
+            background: rgba(139, 92, 246, 0.1);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        /* MCP activity stream */
+        .activity-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        /* Custom Scrollbar */
+        .activity-stream::-webkit-scrollbar {
+            width: 4px;
+        }
+        .activity-stream::-webkit-scrollbar-thumb {
+            background: var(--card-border);
+            border-radius: 4px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            position: relative;
+        }
+
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 30px;
+            bottom: -20px;
+            width: 2px;
+            background-color: var(--card-border);
+        }
+
+        .activity-item:last-child::before {
+            display: none;
+        }
+
+        .activity-icon-container {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .activity-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .activity-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .activity-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .activity-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        /* Action Buttons */
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: #c084fc;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-link:hover {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .code-block {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: #fbbf24;
+            font-weight: bold;
+            font-size: 0.85rem;
+            border: 1px solid rgba(251, 191, 36, 0.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+
+        /* ===================== SIMULATOR PANEL ===================== */
+        .simulator-panel {
+            background: var(--card-bg);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 20px;
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .simulator-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #3b82f6, #10b981);
+        }
+
+        .simulator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .simulator-header h2 {
+            font-family: var(--font-outfit);
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .simulator-badge {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #a78bfa;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.3rem 0.75rem;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .simulator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .sim-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1.25rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .sim-card:hover {
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        .sim-card h3 {
+            font-family: var(--font-outfit);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sim-card label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 0.4rem;
+        }
+
+        .sim-card select,
+        .sim-card input {
+            width: 100%;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-main);
+            padding: 0.6rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: var(--font-inter);
+            margin-bottom: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+            appearance: none;
+        }
+
+        .sim-card select:focus,
+        .sim-card input:focus {
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        .sim-card option {
+            background: #1a1f2e;
+            color: #fff;
+        }
+
+        .sim-btn {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            border: none;
+            font-family: var(--font-outfit);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .sim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .sim-btn-book {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+        }
+        .sim-btn-book:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.45);
+        }
+
+        .sim-btn-reschedule {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+        }
+        .sim-btn-reschedule:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .sim-btn-cancel {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+        }
+        .sim-btn-cancel:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .sim-btn-waitlist {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+        }
+        .sim-btn-waitlist:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .sim-result {
+            margin-top: 0.85rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            line-height: 1.5;
+            display: none;
+            word-break: break-word;
+        }
+
+        .sim-result.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .sim-result.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <h1>Advisor Appointment Scheduler</h1>
+                <p>Live Monitoring Console & MCP Operations Tracker</p>
+            </div>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                Live Sync Active
+            </div>
+        </header>
+
+        <!-- ===================== SIMULATOR PANEL ===================== -->
+        <section class="simulator-panel">
+            <div class="simulator-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Voice Agent Simulator
+                </h2>
+                <span class="simulator-badge">&#9679; Interactive Test Mode</span>
+            </div>
+            <div class="simulator-grid">
+
+                <!-- Book a Slot -->
+                <div class="sim-card">
+                    <h3>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Book an Appointment
+                    </h3>
+                    <label for="book-topic">Consultation Topic</label>
+                    <select id="book-topic">
+                        <option>KYC / Onboarding</option>
+                        <option>SIP / Mandates</option>
+                        <option>Statements / Tax Docs</option>
+                        <option>Withdrawals &amp; Timelines</option>
+                        <option>Account Changes / Nominee</option>
+                    </select>
+                    <label for="book-slot">Available Slot</label>
+                    <select id="book-slot">
+                        <option>Monday 10:00 AM IST</option>
+                        <option>Monday 1:30 PM IST</option>
+                        <option>Tuesday 11:00 AM IST</option>
+                        <option>Tuesday 4:00 PM IST</option>
+                        <option>Friday 3:00 PM IST</option>
+                        <option>Friday 5:30 PM IST</option>
+                    </select>
+                    <button class="sim-btn sim-btn-book" id="btn-book" onclick="simBook()">&#128197; Book This Slot</button>
+                    <div class="sim-result" id="result-book"></div>
+                </div>
+
+                <!-- Reschedule -->
+                <div class="sim-card">
+                    <h3>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        Reschedule Booking
+                    </h3>
+                    <label for="reschedule-code">Booking Code (NL-XXXX)</label>
+                    <input type="text" id="reschedule-code" placeholder="e.g. NL-ABCD" />
+                    <label for="reschedule-slot">New Slot</label>
+                    <select id="reschedule-slot">
+                        <option>Monday 10:00 AM IST</option>
+                        <option>Monday 1:30 PM IST</option>
+                        <option>Tuesday 11:00 AM IST</option>
+                        <option>Tuesday 4:00 PM IST</option>
+                        <option>Friday 3:00 PM IST</option>
+                        <option>Friday 5:30 PM IST</option>
+                    </select>
+                    <button class="sim-btn sim-btn-reschedule" id="btn-reschedule" onclick="simReschedule()">&#128260; Reschedule</button>
+                    <div class="sim-result" id="result-reschedule"></div>
+                </div>
+
+                <!-- Cancel -->
+                <div class="sim-card">
+                    <h3>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        Cancel Booking
+                    </h3>
+                    <label for="cancel-code">Booking Code (NL-XXXX)</label>
+                    <input type="text" id="cancel-code" placeholder="e.g. NL-ABCD" />
+                    <button class="sim-btn sim-btn-cancel" id="btn-cancel" onclick="simCancel()">&#10006; Cancel Booking</button>
+                    <div class="sim-result" id="result-cancel"></div>
+                </div>
+
+                <!-- Waitlist -->
+                <div class="sim-card">
+                    <h3>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Join Waitlist
+                    </h3>
+                    <label for="waitlist-topic">Topic</label>
+                    <select id="waitlist-topic">
+                        <option>KYC / Onboarding</option>
+                        <option>SIP / Mandates</option>
+                        <option>Statements / Tax Docs</option>
+                        <option>Withdrawals &amp; Timelines</option>
+                        <option>Account Changes / Nominee</option>
+                    </select>
+                    <label for="waitlist-day">Preferred Day</label>
+                    <select id="waitlist-day">
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Friday</option>
+                    </select>
+                    <button class="sim-btn sim-btn-waitlist" id="btn-waitlist" onclick="simWaitlist()">&#43; Join Waitlist</button>
+                    <div class="sim-result" id="result-waitlist"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Stats Bar -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Bookings</div>
+                <div class="stat-value" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tentative Hold</div>
+                <div class="stat-value" id="stat-tentative" style="color: #60a5fa;">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Rescheduled</div>
+                <div class="stat-value" id="stat-rescheduled" style="color: #fbbf24;">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Waitlisted Queues</div>
+                <div class="stat-value" id="stat-waitlist" style="color: #a78bfa;">0</div>
+            </div>
+        </section>
+
+        <!-- Main Workspace -->
+        <section class="dashboard-workspace">
+            
+            <!-- Active Bookings (Left side) -->
+            <div class="workspace-card" style="margin-bottom: 0;">
+                <div class="card-header">
+                    <h2>
+                        <!-- Table Icon -->
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        Appointment Bookings Ledger
+                    </h2>
+                </div>
+                
+                <div class="bookings-table-wrapper">
+                    <table id="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>Booking Code</th>
+                                <th>Consultation Topic</th>
+                                <th>Preferred Slot (IST)</th>
+                                <th>Status</th>
+                                <th>Secure Details Link</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-tbody">
+                            <!-- Injected dynamically -->
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <p>Loading bookings ledger...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sidebar Items (Right side) -->
+            <div class="sidebar-column">
+                
+                <!-- Waitlist -->
+                <div class="workspace-card">
+                    <div class="card-header">
+                        <h2>
+                            <!-- Users Icon -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            Waitlist Queue
+                        </h2>
+                    </div>
+                    <div class="waitlist-list" id="waitlist-container">
+                        <div class="empty-state" style="padding: 1rem 0;">
+                            <p>Queue is empty.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MCP Action Logs -->
+                <div class="workspace-card">
+                    <div class="card-header">
+                        <h2>
+                            <!-- Activity Icon -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                            Live MCP Activity Stream
+                        </h2>
+                    </div>
+                    <div class="activity-stream" id="mcp-logs-container">
+                        <!-- Mock Activities Injected -->
+                        <div class="empty-state" style="padding: 1rem 0;">
+                            <p>No activity logged yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Live Poll Update Code -->
+    <script>
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch('/api/dashboard-data');
+                if (!response.ok) throw new Error('API server unreachable');
+                const data = await response.json();
+                updateDashboard(data);
+            } catch (err) {
+                console.error("Error polling dashboard statistics:", err);
+            }
+        }
+
+        function updateDashboard(data) {
+            const bookings = data.bookings || [];
+            const waitlist = data.waitlist || [];
+            const logs = data.mcp_logs || [];
+
+            // 1. Update Metrics
+            const total = bookings.length;
+            const tentative = bookings.filter(b => b.status === 'Tentative').length;
+            const rescheduled = bookings.filter(b => b.status === 'Rescheduled').length;
+            const waitlisted = waitlist.length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-tentative').innerText = tentative;
+            document.getElementById('stat-rescheduled').innerText = rescheduled;
+            document.getElementById('stat-waitlist').innerText = waitlisted;
+
+            // 2. Render Bookings
+            const tbody = document.getElementById('bookings-tbody');
+            if (bookings.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <p>No active advisor bookings. Complete a conversation using the AI Voice Agent to see it appear here live.</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                // Render from latest to oldest
+                tbody.innerHTML = bookings.map(b => {
+                    let badgeClass = 'badge-tentative';
+                    if (b.status === 'Rescheduled') badgeClass = 'badge-rescheduled';
+                    if (b.status === 'Cancelled') badgeClass = 'badge-cancelled';
+
+                    return `
+                        <tr>
+                            <td><span class="code-block">${b.booking_code}</span></td>
+                            <td><strong>${b.topic}</strong></td>
+                            <td>${b.slot}</td>
+                            <td><span class="badge ${badgeClass}">${b.status}</span></td>
+                            <td>
+                                ${b.status !== 'Cancelled' ? `<a href="${b.secure_link}" target="_blank" class="btn-link">Complete Details &rarr;</a>` : '<span style="color: var(--text-secondary); font-size: 0.8rem;">Inactive</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // 3. Render Waitlist Queue
+            const waitlistContainer = document.getElementById('waitlist-container');
+            if (waitlist.length === 0) {
+                waitlistContainer.innerHTML = `
+                    <div class="empty-state" style="padding: 1rem 0;">
+                        <p>No candidates waiting.</p>
+                    </div>
+                `;
+            } else {
+                waitlistContainer.innerHTML = waitlist.map(w => `
+                    <div class="waitlist-item">
+                        <div class="waitlist-info">
+                            <h4>${w.topic}</h4>
+                            <p>Preferred: ${w.preferred_day}</p>
+                        </div>
+                        <span class="waitlist-badge">Waitlist</span>
+                    </div>
+                `).join('');
+            }
+
+            // 4. Render MCP Actions
+            const logsContainer = document.getElementById('mcp-logs-container');
+            if (logs.length === 0) {
+                logsContainer.innerHTML = `
+                    <div class="empty-state" style="padding: 1rem 0;">
+                        <p>No active integrations triggered yet.</p>
+                    </div>
+                `;
+            } else {
+                // Reverse to show newest on top
+                const reversedLogs = [...logs].reverse();
+                logsContainer.innerHTML = reversedLogs.map(l => {
+                    let iconColor = 'var(--accent-blue)';
+                    let svgMarkup = '';
+
+                    if (l.action.includes('Calendar')) {
+                        iconColor = 'var(--primary)';
+                        svgMarkup = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary);"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
+                    } else if (l.action.includes('Sheet')) {
+                        iconColor = 'var(--accent-green)';
+                        svgMarkup = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--accent-green);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>';
+                    } else if (l.action.includes('Gmail')) {
+                        iconColor = 'var(--accent-yellow)';
+                        svgMarkup = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--accent-yellow);"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>';
+                    }
+
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-icon-container" style="border-color: ${iconColor};">
+                                ${svgMarkup}
+                            </div>
+                            <div class="activity-details">
+                                <span class="activity-title">${l.action}</span>
+                                <span class="activity-desc">${l.details}</span>
+                                <span class="activity-time">${l.timestamp}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Initialize polling every 3 seconds
+        fetchDashboardData();
+        setInterval(fetchDashboardData, 3000);
+
+        // ===================== SIMULATOR FUNCTIONS =====================
+        function showResult(id, message, isError) {
+            const el = document.getElementById(id);
+            el.className = 'sim-result ' + (isError ? 'error' : 'success');
+            el.innerText = message;
+        }
+
+        async function simBook() {
+            const topic = document.getElementById('book-topic').value;
+            const slot = document.getElementById('book-slot').value;
+            const btn = document.getElementById('btn-book');
+            btn.disabled = true;
+            btn.innerText = 'Booking...';
+            try {
+                const res = await fetch('/book', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ topic, slot })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showResult('result-book', `✅ Booked! Code: ${data.booking_code}\nSecure Link: ${data.secure_link}\nMCP: ${data.mcp_status}`, false);
+                    // Auto-fill reschedule and cancel fields with new code
+                    document.getElementById('reschedule-code').value = data.booking_code;
+                    document.getElementById('cancel-code').value = data.booking_code;
+                } else {
+                    showResult('result-book', `❌ Error: ${data.detail}`, true);
+                }
+            } catch(e) {
+                showResult('result-book', `❌ Network Error: ${e.message}`, true);
+            }
+            btn.disabled = false;
+            btn.innerHTML = '&#128197; Book This Slot';
+            fetchDashboardData();
+        }
+
+        async function simReschedule() {
+            const booking_code = document.getElementById('reschedule-code').value.trim();
+            const new_slot = document.getElementById('reschedule-slot').value;
+            if (!booking_code) { showResult('result-reschedule', '⚠️ Please enter a Booking Code first.', true); return; }
+            const btn = document.getElementById('btn-reschedule');
+            btn.disabled = true;
+            btn.innerText = 'Rescheduling...';
+            try {
+                const res = await fetch('/reschedule', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ booking_code, new_slot })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showResult('result-reschedule', `✅ Rescheduled to: ${data.new_slot}\nMCP: ${data.mcp_status}`, false);
+                } else {
+                    showResult('result-reschedule', `❌ Error: ${data.detail}`, true);
+                }
+            } catch(e) {
+                showResult('result-reschedule', `❌ Network Error: ${e.message}`, true);
+            }
+            btn.disabled = false;
+            btn.innerHTML = '&#128260; Reschedule';
+            fetchDashboardData();
+        }
+
+        async function simCancel() {
+            const booking_code = document.getElementById('cancel-code').value.trim();
+            if (!booking_code) { showResult('result-cancel', '⚠️ Please enter a Booking Code first.', true); return; }
+            const btn = document.getElementById('btn-cancel');
+            btn.disabled = true;
+            btn.innerText = 'Cancelling...';
+            try {
+                const res = await fetch('/cancel', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ booking_code })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showResult('result-cancel', `✅ Cancelled: ${data.booking_code}\nMCP: ${data.mcp_status}`, false);
+                } else {
+                    showResult('result-cancel', `❌ Error: ${data.detail}`, true);
+                }
+            } catch(e) {
+                showResult('result-cancel', `❌ Network Error: ${e.message}`, true);
+            }
+            btn.disabled = false;
+            btn.innerHTML = '&#10006; Cancel Booking';
+            fetchDashboardData();
+        }
+
+        async function simWaitlist() {
+            const topic = document.getElementById('waitlist-topic').value;
+            const preferred_day = document.getElementById('waitlist-day').value;
+            const btn = document.getElementById('btn-waitlist');
+            btn.disabled = true;
+            btn.innerText = 'Joining...';
+            try {
+                const res = await fetch('/waitlist', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ topic, preferred_day })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showResult('result-waitlist', `✅ ${data.message}`, false);
+                } else {
+                    showResult('result-waitlist', `❌ Error: ${data.detail}`, true);
+                }
+            } catch(e) {
+                showResult('result-waitlist', `❌ Network Error: ${e.message}`, true);
+            }
+            btn.disabled = false;
+            btn.innerHTML = '&#43; Join Waitlist';
+            fetchDashboardData();
+        }
+    </script>
+</body>
+</html>

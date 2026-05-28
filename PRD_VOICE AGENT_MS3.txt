@@ -1,0 +1,339 @@
+
+
+Bootcamp Challenge PRD
+AI Voice Agent — Advisor Appointment Scheduler
+Build it. Deploy it. Share the link.
+Edition
+Bootcamp / Student Project
+Based on
+Original PRD v2.0 — simplified for demo scope
+Platform
+Google AI Studio / Antigravity
+Stack
+Gemini Live API + FastAPI + one MCP action
+Deployment
+Render (backend) + Antigravity (voice UI)
+Deliverable
+Shareable live URL for instructor review
+
+What this PRD is NOT
+This is NOT the enterprise v3.0 PRD with rate limiting, TRAI compliance,
+Redis TTLs, or MCP rollback strategies.
+
+This is the version you can actually build and deploy in 4 days,
+share a live link with your instructor, and demo 6 scenarios confidently.
+
+1. What You Are Building
+A deployed voice agent that lets a user book a tentative advisor appointment over a phone-style conversation — without collecting any personal information during the call. Your instructor gets a live URL they can open and test.
+
+The agent must:
+Greet the user and state it does not give investment advice
+Detect what the user wants (book / reschedule / cancel / prepare / availability)
+Collect a topic and preferred date/time
+Offer backend-generated slots in IST
+Confirm the slot and generate a booking code (e.g. NL-A742)
+Trigger all three MCP actions (calendar hold, sheets/notes append, and Gmail draft)
+Block PII and investment advice — always
+
+The one rule that matters most
+The LLM must NEVER invent slots, times, or booking codes.
+All data comes from the backend. The LLM only handles conversation.
+
+2. The 5 Intents You Must Support
+Intent
+Example User Phrases
+Book new appointment
+"Book an advisor call" / "I need to schedule a session"
+Reschedule appointment
+"Move my appointment" / "Change my slot"
+Cancel appointment
+"Cancel my booking" / "I don't need it anymore"
+What to prepare
+"What should I bring?" / "What documents do I need?"
+Check availability
+"What slots are free?" / "When is the advisor available?"
+
+3. The 5 Approved Topics
+Only respond to these. Politely redirect everything else.
+
+Topic
+Covers
+KYC / Onboarding
+Identity verification, new account setup
+SIP / Mandates
+Systematic investment plan queries
+Statements / Tax Docs
+Account statements, tax documents
+Withdrawals & Timelines
+Redemption process, timelines
+Account Changes / Nominee
+Profile updates, nominee changes
+
+4. The Conversation Flow (Happy Path)
+Follow this sequence for every new booking. Do not skip steps.
+
+Happy Path — Step by Step
+Step 1   GREETING         Welcome + compliance disclaimer
+Step 2   INTENT           Detect what the user wants
+Step 3   TOPIC            Confirm topic from the approved list
+Step 4   DATE / TIME      Ask for preferred date and time
+Step 5   SLOTS            Offer 2 backend-generated slots in IST
+Step 6   CONFIRM          User picks a slot — repeat it back before confirming
+Step 7   BOOKING CODE     Backend generates NL-XXXX code
+Step 8   MCP ACTION       Fire calendar hold or notes append
+Step 9   WRAP UP          Confirm booking, give secure link, say goodbye
+
+Greeting Script
+Use this exactly
+"Welcome to the Advisor Appointment Scheduler.
+ This call is informational only and does not provide investment advice.
+ How may I assist you today?"
+
+Slot Confirmation Script
+Repeat before confirming — mandatory
+"To confirm: your tentative advisor session for [TOPIC]
+ is scheduled for [DAY] at [TIME] IST. Shall I confirm this?"
+
+5. Compliance — The Two Hard Rules
+Rule 1 — No PII During the Call
+The agent must NEVER ask for or accept: phone numbers, email, PAN, Aadhaar, account numbers, portfolio details.
+
+If the user volunteers PII, interrupt immediately:
+"Please do not share personal or financial information during this call.
+ You will receive a secure link to complete your details safely."
+
+Rule 2 — No Investment Advice
+Mandatory refusal:
+"I cannot provide investment advice.
+ You may review educational resources from SEBI (sebi.gov.in) or Investor.gov."
+
+6. Slots and Booking Code
+Slot Generation
+Slots come from your backend — never from the LLM. Offer exactly 2 slots.
+Example slot output
+"Available slots are:
+  Friday 3:00 PM IST
+  Friday 5:30 PM IST
+ Which works for you?"
+
+Booking Code
+Format: NL-XXXX
+code = "NL-" + random_alphanumeric(4).upper()
+Example: NL-A742, NL-K391, NL-B827
+Generate AFTER user confirms — never before.
+
+7. MCP Integration
+You need all THREE working MCP actions integrated.
+
+MCP Action
+What It Does
+Google Calendar hold
+Create event: "Advisor Q&A — SIP/Mandates — NL-A742" as tentative
+Notion / Google Sheets append
+Append row: { date, topic, slot, code } to bookings sheet
+Gmail draft
+Draft an internal approval email — do NOT auto-send
+
+8. Timeout & Interruption
+Silence Timeout
+4 seconds silence: "Are you still there?"
+Another 4 seconds: "I'll end the session now. Please call back when ready. Goodbye."
+
+Mid-Sentence Interruption
+User interrupts a slot offer: stop, return to date/time collection
+Do not repeat what you already said — just ask the new question
+
+9. Tech Stack — Deployment Ready
+Every layer is chosen so you get a shareable URL without DevOps complexity.
+
+Layer
+Tool
+Voice UI
+Antigravity (Google AI Studio) — shareable link built-in
+STT / TTS
+Gemini Live API
+LLM
+Gemini 2.5 Flash
+Backend API
+FastAPI (Python)
+Backend Hosting
+Render.com — free tier, deploy from GitHub
+Slot Store
+In-memory Python dict or JSON file (sufficient for demo)
+MCP
+Google Calendar API or Notion API
+Environment vars
+Render dashboard — store API keys safely
+
+10. Deployment Guide — Get Your Shareable URL
+Follow these steps in order. You will have a live link in under 2 hours.
+
+Step 1 — Prepare Your GitHub Repo
+Repo structure
+your-repo/
+  main.py           (FastAPI app — slots, booking code, MCP trigger)
+  requirements.txt  (fastapi, uvicorn, httpx, google-auth, ...)
+  .env.example      (list env vars needed, never commit real keys)
+  README.md         (include your Antigravity agent link here)
+
+Push everything to a public GitHub repository
+Never commit .env files or API keys — use environment variables
+Add a requirements.txt with all dependencies listed explicitly
+
+Step 2 — Deploy Backend on Render
+Render free tier is sufficient for a bootcamp demo
+1.  Go to render.com and sign up with your GitHub account
+2.  Click New > Web Service
+3.  Connect your GitHub repo
+4.  Set these fields:
+      Name:          voice-agent-backend
+      Runtime:       Python 3
+      Build Command: pip install -r requirements.txt
+      Start Command: uvicorn main:app --host 0.0.0.0 --port $PORT
+5.  Add environment variables in the Render dashboard:
+      GEMINI_API_KEY
+      GOOGLE_CALENDAR_CREDENTIALS  (or NOTION_TOKEN)
+      Any other secrets your app needs
+6.  Click Deploy — Render builds and gives you a URL like:
+      https://voice-agent-backend.onrender.com
+
+Important — Render free tier cold starts
+On the free tier, Render spins down your service after 15 minutes of inactivity.
+The first request after a cold start takes 30-50 seconds.
+Fix: ping your backend URL once before your demo starts.
+Or upgrade to Render Starter ($7/month) to keep it always-on.
+
+Step 3 — Set Up Your Voice Agent on Antigravity
+Antigravity gives you a shareable voice UI link automatically
+1.  Go to Google AI Studio and open Antigravity
+2.  Create a new voice agent project
+3.  Set your system prompt (see Section 4 conversation flow)
+4.  Point the backend webhook to your Render URL:
+      Slot endpoint:    https://voice-agent-backend.onrender.com/slots
+      Booking endpoint: https://voice-agent-backend.onrender.com/book
+      MCP endpoint:     https://voice-agent-backend.onrender.com/mcp
+5.  Test the full flow inside Antigravity
+6.  Click Share — Antigravity generates a public link like:
+      https://aistudio.google.com/live/agent/YOUR_AGENT_ID
+
+Step 4 — What to Send Your Instructor
+Include all three in one message
+1.  Live agent URL (Antigravity shareable link) — this is the main link
+2.  Backend API URL (Render) — shows your backend is real and deployed
+3.  GitHub repo link — shows your code, README, and architecture
+
+Example message to instructor:
+  "Here is my voice agent prototype:
+   Voice UI:   https://aistudio.google.com/live/agent/XXXX
+   Backend:    https://voice-agent-backend.onrender.com
+   Code:       https://github.com/yourusername/voice-agent
+   Demo guide: README.md lists the 6 scenarios to test"
+
+11. FastAPI Backend — Minimum Endpoints
+Your FastAPI app needs these 3 endpoints for the voice agent to work.
+
+Endpoint
+What It Does
+When Called
+GET  /slots
+Returns 2 available slots for a given day
+Called after user gives date preference
+POST /book
+Generates NL-XXXX booking code, fires MCP action
+Called after user confirms slot
+POST /mcp
+Triggers Google Calendar hold, Google Sheets append, and Gmail draft
+Called from /book internally
+
+Minimal /slots response (hardcode for demo)
+GET /slots?day=friday
+
+Returns:
+{
+  "slots": [
+    "Friday 3:00 PM IST",
+    "Friday 5:30 PM IST"
+  ]
+}
+
+You can hardcode a fixed slot list for the demo — it just needs to work.
+
+Minimal /book response
+POST /book
+Body: { "topic": "SIP/Mandates", "slot": "Friday 3:00 PM IST" }
+
+Returns:
+{
+  "booking_code": "NL-A742",
+  "secure_link": "https://advisor.example.com/complete/NL-A742",
+  "mcp_status": "calendar_hold_created"
+}
+
+12. Your 6 Demo Scenarios
+Share these instructions with your instructor so they know what to test.
+
+Scenario
+What to Show
+Scenario 1 — Happy path booking
+Book SIP/Mandates on Friday 3 PM IST. Full flow, booking code generated, MCP fires.
+Scenario 2 — Investment advice refusal
+Ask: "which fund should I invest in?" Agent refuses and cites SEBI.
+Scenario 3 — PII interruption
+Say: "my account number is 1234..." Agent interrupts immediately.
+Scenario 4 — Waitlist
+Ask for a slot that has no availability. Agent adds to waitlist.
+Scenario 5 — Reschedule
+Give booking code NL-A742, pick a new slot, MCP updates.
+Scenario 6 — Cancel
+Give booking code, agent confirms cancellation.
+
+Demo tip
+Run Scenario 2 and 3 early — they are the most impressive compliance moments.
+End with Scenario 1 so the last thing your instructor sees is a clean full booking.
+Before the demo: ping your Render URL once to wake it from cold start.
+
+13. Done-When Checklist
+Before sending the link to your instructor, verify every item:
+
+Build checklist
+[ ]  Voice loop works — STT hears, LLM responds, TTS speaks
+[ ]  All 5 intents detected correctly
+[ ]  All 5 topics recognised, out-of-scope topics rejected
+[ ]  Slots come from backend — LLM never invents times
+[ ]  Booking code generated after confirmation, never before
+[ ]  All three MCP actions fire and results are visible
+[ ]  PII interruption works (test with account number)
+[ ]  Investment advice refused (test with fund recommendation ask)
+[ ]  IST mentioned in every slot offering
+[ ]  All 6 demo scenarios run without crashing
+
+Deployment checklist
+[ ]  FastAPI backend deployed on Render and publicly accessible
+[ ]  Render URL responds to GET /slots and POST /book
+[ ]  No API keys committed to GitHub (.env in .gitignore)
+[ ]  Antigravity agent connects to Render backend correctly
+[ ]  Antigravity shareable link opens and voice works in browser
+[ ]  GitHub repo has a clear README with demo instructions
+[ ]  Tested the full flow on the live URL (not just locally)
+[ ]  Render pinged before demo to avoid cold start delay
+
+14. Suggested 4-Day Build Plan
+
+Day
+Goal
+Day 1
+FastAPI skeleton with /slots and /book endpoints. Test locally. Push to GitHub.
+Day 2
+Gemini Live API + Antigravity voice loop. Full happy path working locally.
+Day 3
+Deploy to Render. Connect MCP action. Add PII guard + advice refusal. Fix bugs.
+Day 4
+Polish all 6 demo scenarios on the live URL. Write README. Send link.
+
+Estimated total build time
+Day 1  —  FastAPI backend skeleton:         4-6 hours
+Day 2  —  Voice loop + full happy path:     5-7 hours
+Day 3  —  Deployment + MCP + compliance:    4-6 hours
+Day 4  —  Polish + demo prep + README:      2-3 hours
+
+Total: approximately 15-22 hours of focused work
