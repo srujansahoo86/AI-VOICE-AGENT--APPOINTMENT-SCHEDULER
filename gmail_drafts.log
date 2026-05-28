@@ -1,65 +1,13 @@
-========================================================================
-[2026-05-20 22:17:11.636580] CREATE GMAIL DRAFT
-Subject: Internal Approval Required — Advisor Q&A — KYC / Onboarding — NL-WWKC
+=========================== FALLBACK DRAFT ===========================
+[2026-05-28 21:42:57.198279] ERROR FALLBACK GMAIL DRAFT (due to: ('unauthorized_client: Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.', {'error': 'unauthorized_client', 'error_description': 'Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.'}))
+Subject: Internal Approval Required — Advisor Q&A — SIP / Mandates — NL-YMO9
 Body:
 A new tentative advisor booking has been scheduled.
 
 Details:
-- Topic: KYC / Onboarding
+- Topic: SIP / Mandates
 - Slot: Monday 10:00 AM IST
-- Booking Code: NL-WWKC
-
-Please review and approve this appointment.
-========================================================================
-========================================================================
-[2026-05-20 22:27:59.035920] CREATE GMAIL DRAFT
-Subject: Internal Approval Required — Advisor Q&A — KYC / Onboarding — NL-HGTD
-Body:
-A new tentative advisor booking has been scheduled.
-
-Details:
-- Topic: KYC / Onboarding
-- Slot: Monday 1:30 PM IST
-- Booking Code: NL-HGTD
-
-Please review and approve this appointment.
-========================================================================
-=========================== FALLBACK DRAFT ===========================
-[2026-05-20 23:40:25.551222] ERROR FALLBACK GMAIL DRAFT (due to: ('unauthorized_client: Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.', {'error': 'unauthorized_client', 'error_description': 'Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.'}))
-Subject: Internal Approval Required — Advisor Q&A — SIP / Mandates — NL-Y8T2
-Body:
-A new tentative advisor booking has been scheduled.
-
-Details:
-- Topic: SIP / Mandates
-- Slot: Friday 3:00 PM IST
-- Booking Code: NL-Y8T2
-
-Please review and approve this appointment.
-======================================================================
-=========================== FALLBACK DRAFT ===========================
-[2026-05-20 23:43:54.582233] ERROR FALLBACK GMAIL DRAFT (due to: ('unauthorized_client: Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.', {'error': 'unauthorized_client', 'error_description': 'Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.'}))
-Subject: Internal Approval Required — Advisor Q&A — SIP / Mandates — NL-FO96
-Body:
-A new tentative advisor booking has been scheduled.
-
-Details:
-- Topic: SIP / Mandates
-- Slot: Friday 3:00 PM IST
-- Booking Code: NL-FO96
-
-Please review and approve this appointment.
-======================================================================
-=========================== FALLBACK DRAFT ===========================
-[2026-05-21 21:57:45.568891] ERROR FALLBACK GMAIL DRAFT (due to: ('unauthorized_client: Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.', {'error': 'unauthorized_client', 'error_description': 'Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.'}))
-Subject: Internal Approval Required — Advisor Q&A — SIP / Mandates — NL-EF26
-Body:
-A new tentative advisor booking has been scheduled.
-
-Details:
-- Topic: SIP / Mandates
-- Slot: Friday 3:00 PM IST
-- Booking Code: NL-EF26
+- Booking Code: NL-YMO9
 
 Please review and approve this appointment.
 ======================================================================
